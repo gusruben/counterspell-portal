@@ -1,2 +1,7 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+
+<div class="fixed inset-10 flex flex-col gap-10 items-center">
+    <h1 class="font-retro">Counterspell Portal</h1>
+    <div class="bg-red-500 rounded-3xl w-full h-full">
+        
+    </div>
+</div>
