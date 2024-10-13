@@ -7,9 +7,7 @@ export default {
 		fontFamily: {
 			'retro': ['Retro Gaming'],
 		},
-		extend: {
-			
-		}
+		extend: {}
 	},
 	plugins: []
 } as Config;
