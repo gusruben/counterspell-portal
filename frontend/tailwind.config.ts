@@ -5,9 +5,9 @@ export default {
 
 	theme: {
 		fontFamily: {
-			'retro': ['Retro Gaming'],
+			retro: ['Retro Gaming'],
 		},
-		extend: {}
+		extend: {},
 	},
-	plugins: []
+	plugins: [],
 } as Config;
