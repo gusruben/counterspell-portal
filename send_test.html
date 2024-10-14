@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <title>Document</title>
+</head>
+
+<script>
+    var peer = new Peer("sender", {
+        host: "localhost",
+        port: 8080,
+        path: "/"
+    });
+
+    console.log(peer)
+
+    const socket = peer._socket._socket;
+
+    socket.addEventListener("message", (event) => {
+        console.log("Message from server ", event.data);
+    });
+
+    var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    getUserMedia({video: true, audio: false}, function(stream) {
+        console.log("AWKJDBKASJDSD")
+        var call = peer.call('receiver', stream);
+        console.log("ANQITUE")
+        call.on('stream', function(remoteStream) {
+            console.log("STC")
+            var video = document.getElementById("vid");
+            video.srcObject = remoteStream;
+        });
+    }, function(err) {
+        console.log('Failed to get local stream' ,err);
+    });
+</script>
+<body>
+    <video id="vid"></video>
+</body>
+</html>
