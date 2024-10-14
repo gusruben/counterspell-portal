@@ -13,7 +13,10 @@
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/x/g,()=>Math.floor(Math.random() * 0xf).toString(16)).replace('y',Math.floor(Math.random()*4+8).toString(16));
     }
 
-    let peer = new Peer(uuidv4(), {
+    const local_id = uuidv4();
+    console.log(`Local id is: ${local_id}`)
+
+    let peer = new Peer(local_id, {
         host: "gus.ink",
         port: 8080,
         path: "/"
@@ -25,18 +28,14 @@
     let call;
     socket.addEventListener("message", (event) => {
         const ev = JSON.parse(event.data);
-        console.log(`Received message ${ev}`)
-        console.log(typeof ev, ev)
 
         switch(ev.type){
             case "call":
-                console.log("Entering call case")
                 if (call) {
                     call.close();
-                    console.log("Closed previous call")
                 }
 
-                getUserMedia({video: true, audio: false}, function(stream) {
+                navigator.mediaDevices.getUserMedia({video: true, audio: false}).then( function(stream) {
                     call = peer.call(ev.peer, stream)
 
                     console.log(ev.peer)
@@ -55,18 +54,18 @@
         }
     });
 
-    const getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
     peer.on('call', function(call) {
+        console.log("Receiving call", call.peer, trusted_peer, call.peer == trusted_peer)
         if(call.peer == trusted_peer){
-            getUserMedia({video: true, audio: false}, function(stream) {
+            navigator.mediaDevices.getUserMedia({video: true, audio: false}).then( function(stream) {
                 call.answer(stream);
 
                 call.on('stream', function(remoteStream) {
                     const video = document.getElementById("vid");
                     video.srcObject = remoteStream;
                 });
-
-            }, function(err) {
+            })
+            .catch(function(err) {
                 console.log('Failed to get local stream' ,err);
             });
         } 

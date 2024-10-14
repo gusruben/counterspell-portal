@@ -1,9 +1,19 @@
-import { PeerServer }  from "peer"
+import { PeerServer } from "peer";
 import type { clientList } from "./types";
+import fs from 'fs';
 
-const PORT = 8080
+const PORT = 8080;
 
-const peerServer = PeerServer({ port: PORT, path: "/" });
+const ssl = {
+  key: Buffer.from(fs.readFileSync('/etc/letsencrypt/live/gus.ink/privkey.pem')),
+  cert: Buffer.from(fs.readFileSync('/etc/letsencrypt/live/gus.ink/fullchain.pem')),
+};
+
+const peerServer = PeerServer({
+  port: PORT,
+  path: "/",
+  ssl: ssl,
+});
 
 let clients: clientList = {};
 
