@@ -1,13 +1,14 @@
 <script lang="ts">
 	import Peer, { type MediaConnection } from 'peerjs';
 
-	export let connectedLocation = '';
+	export let connectedLocation = 'Waiting to connect...';
 	export let connected = false;
 
 	let videoElement: HTMLVideoElement;
 	let localId: string;
 
 	function initiateConnection() {
+        console.log(`Connecting to wss://${import.meta.env.VITE_HOST_SERVER}:${import.meta.env.VITE_HOST_PORT}`);
 		const peer = new Peer(localId, {
 			host: import.meta.env.VITE_HOST_SERVER,
 			port: parseInt(import.meta.env.VITE_HOST_PORT as string),
@@ -17,7 +18,7 @@
 		// bro what
 		// type script fuckery-- peer.socket._socket is private, but we want that existing
 		// websocket connection to get notified for who to connect to / expect a call from
-		const socket = (peer.socket as unknown as { _socket: WebSocket })._socket;
+        const socket = (peer.socket as unknown as { _socket: WebSocket })._socket;
 
 		let trustedPeer: string | undefined;
 		let currentCall: MediaConnection | undefined;
@@ -55,12 +56,14 @@
 
 <!-- svelte-ignore a11y-media-has-caption -->
 <video autoplay bind:this={videoElement} class="absolute h-full w-full" />
-<div class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col gap-2">
-	<input
-		type="text"
-		class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none"
-		placeholder="Enter your event name..."
-		bind:value={localId}
-	/>
-	<button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}>ENTER THE PORTAL</button>
-</div>
+{#if !connected}
+    <div class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col gap-2">
+        <input
+            type="text"
+            class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none"
+            placeholder="Enter your event name..."
+            bind:value={localId}
+        />
+        <button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}>ENTER THE PORTAL</button>
+    </div>
+{/if}
