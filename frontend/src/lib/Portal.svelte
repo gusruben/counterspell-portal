@@ -40,6 +40,7 @@
 					break;
 
 				case 'assign':
+                    connected = true;
                     console.log("Got assigned", peer)
 					connectedLocation = trustedPeer = ev.peer;
 					break;
@@ -57,7 +58,7 @@
 </script>
 
 <!-- svelte-ignore a11y-media-has-caption -->
-<video autoplay bind:this={videoElement} class="absolute h-full w-full" />
+<video autoplay bind:this={videoElement} class="absolute h-full w-full object-cover" />
 {#if !connected}
     <div class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col gap-2">
         <input
