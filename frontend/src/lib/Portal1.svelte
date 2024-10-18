@@ -8,7 +8,7 @@
 
 	let videoElement: HTMLVideoElement;
 	let controlsElement: HTMLDivElement;
-	let localId: string = "Commputer";
+	let localId: string = "Computer";
 
 	async function initiateConnection() {
 		// hide the controls
@@ -33,14 +33,12 @@
 		let fromPhone: MediaConnection | undefined;
 
 		const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-		
+		currentCall = peer.call("Smartboard", stream);
+		connectedLocation = "Smartboard"
 		//currentCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
 
 		fromPhone = getFromPhone.call("Phone", stream);
 		fromPhone.on('stream', remoteStream => (videoElement.srcObject = remoteStream))
-
-		currentCall = peer.call("Smartboard", stream);
-		connectedLocation = "Smartboard"
 	}
 </script>
 

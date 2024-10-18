@@ -24,7 +24,7 @@
 		});
 
 		peer.on('call', async incomingCall => {
-			const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+			const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
 
 			incomingCall.answer(stream);
 			incomingCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
