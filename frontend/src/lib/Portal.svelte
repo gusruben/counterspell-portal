@@ -5,10 +5,16 @@
 	export let connected = false;
 
 	let videoElement: HTMLVideoElement;
+	let controlsElement: HTMLDivElement;
 	let localId: string;
 
 	function initiateConnection() {
-        console.log(`Connecting to wss://${import.meta.env.VITE_HOST_SERVER}:${import.meta.env.VITE_HOST_PORT}`);
+		// hide the controls
+		controlsElement.setAttribute('data-hidden', 'true');
+
+		console.log(
+			`Connecting to wss://${import.meta.env.VITE_HOST_SERVER}:${import.meta.env.VITE_HOST_PORT}`
+		);
 		const peer = new Peer(localId, {
 			host: import.meta.env.VITE_HOST_SERVER,
 			port: parseInt(import.meta.env.VITE_HOST_PORT as string),
@@ -18,7 +24,7 @@
 		// bro what
 		// type script fuckery-- peer.socket._socket is private, but we want that existing
 		// websocket connection to get notified for who to connect to / expect a call from
-        const socket = (peer.socket as unknown as { _socket: WebSocket })._socket;
+		const socket = (peer.socket as unknown as { _socket: WebSocket })._socket;
 
 		let trustedPeer: string | undefined;
 		let currentCall: MediaConnection | undefined;
@@ -33,15 +39,15 @@
 					if (currentCall) currentCall.close();
 
 					// call the new peer
-                    console.log("Calling", peer)
+					console.log('Calling', peer);
 					const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
 					currentCall = peer.call(ev.peer, stream);
 					currentCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
 					break;
 
 				case 'assign':
-                    connected = true;
-                    console.log("Got assigned", peer)
+					connected = true;
+					console.log('Got assigned', peer);
 					connectedLocation = trustedPeer = ev.peer;
 					break;
 			}
@@ -59,14 +65,19 @@
 
 <!-- svelte-ignore a11y-media-has-caption -->
 <video autoplay bind:this={videoElement} class="absolute h-full w-full object-cover" />
-{#if !connected}
-    <div class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col gap-2">
-        <input
-            type="text"
-            class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none"
-            placeholder="Enter your event name..."
-            bind:value={localId}
-        />
-        <button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}>ENTER THE PORTAL</button>
-    </div>
-{/if}
+
+<div
+	class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col gap-2
+			transition-transform ease-in-out data-[hidden]:scale-0"
+	bind:this={controlsElement}
+>
+	<input
+		type="text"
+		class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none"
+		placeholder="Enter your event name..."
+		bind:value={localId}
+	/>
+	<button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}
+		>ENTER THE PORTAL</button
+	>
+</div>
