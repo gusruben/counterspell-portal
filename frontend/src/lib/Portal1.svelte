@@ -35,7 +35,7 @@
 		const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
 		currentCall = peer.call("Smartboard", stream);
 		connectedLocation = "Smartboard"
-		//currentCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
+		currentCall.on('stream', (remoteStream: any) => {});
 
 		fromPhone = getFromPhone.call("Phone", stream);
 		fromPhone.on('stream', remoteStream => (videoElement.srcObject = remoteStream))
