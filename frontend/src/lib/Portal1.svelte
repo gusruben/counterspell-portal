@@ -8,7 +8,7 @@
 
 	let videoElement: HTMLVideoElement;
 	let controlsElement: HTMLDivElement;
-	let localId: string;
+	let localId: string = "Commputer";
 
 	async function initiateConnection() {
 		// hide the controls
@@ -28,16 +28,19 @@
 			port: parseInt(import.meta.env.VITE_HOST_PORT as string),
 			path: '/',
 		})
-		
+
 		let currentCall: MediaConnection | undefined;
 		let fromPhone: MediaConnection | undefined;
 
 		const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-		currentCall = peer.call("Smartboard", stream);
+		
 		//currentCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
 
 		fromPhone = getFromPhone.call("Phone", stream);
 		fromPhone.on('stream', remoteStream => (videoElement.srcObject = remoteStream))
+
+		currentCall = peer.call("Smartboard", stream);
+		connectedLocation = "Smartboard"
 	}
 </script>
 
@@ -53,7 +56,6 @@
 		type="text"
 		class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none"
 		placeholder="Enter your event name..."
-		bind:value={localId}
 	/>
 	<button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}
 		>ENTER THE PORTAL</button

@@ -28,6 +28,8 @@
 
 			incomingCall.answer(stream);
 			incomingCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
+
+			connectedLocation = incomingCall.connectionId;
 		});
 	}
 </script>

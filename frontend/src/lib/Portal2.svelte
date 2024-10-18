@@ -27,7 +27,9 @@
 			const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
 
 			incomingCall.answer(stream);
-			incomingCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
+			//incomingCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
+
+			connectedLocation = incomingCall.connectionId;
 		});
 	}
 </script>
