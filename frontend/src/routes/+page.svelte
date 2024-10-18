@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Portal from '$lib/Portal.svelte';
+	import Portal from '$lib/Portal1.svelte';
 
 	let connectedLocation: string;
 	// placeholder for now
