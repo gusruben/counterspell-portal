@@ -25,7 +25,7 @@
 		socket.addEventListener('message', async event => {
 			const ev = JSON.parse(event.data);
 
-			switch (event.type) {
+			switch (ev.type) {
 				case 'call':
 					connected = true;
 
@@ -33,12 +33,14 @@
 					if (currentCall) currentCall.close();
 
 					// call the new peer
+                    console.log("Calling", peer)
 					const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
 					currentCall = peer.call(ev.peer, stream);
 					currentCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
 					break;
 
 				case 'assign':
+                    console.log("Got assigned", peer)
 					connectedLocation = trustedPeer = ev.peer;
 					break;
 			}
