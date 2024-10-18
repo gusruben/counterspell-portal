@@ -1,67 +1,66 @@
 <script lang="ts">
-    import { Peer, MediaConnection } from 'peerjs';
-    import { v4 as uuidv4 } from "uuid";
-    import { config as dotenv } from "dotenv";
-	import { onMount } from 'svelte';
+	import Peer, { type MediaConnection } from 'peerjs';
 
-    dotenv();
+	export let connectedLocation = '';
+	export let connected = false;
 
-    export let connectedLocation = "";
-    export let timeLeft = 0;
+	let videoElement: HTMLVideoElement;
+	let localId: string;
 
-    let videoElement: HTMLVideoElement;
+	function initiateConnection() {
+		const peer = new Peer(localId, {
+			host: import.meta.env.VITE_HOST_SERVER,
+			port: parseInt(import.meta.env.VITE_HOST_PORT as string),
+			path: '/',
+		});
 
-    onMount(() => {
+		// bro what
+		// type script fuckery-- peer.socket._socket is private, but we want that existing
+		// websocket connection to get notified for who to connect to / expect a call from
+		const socket = (peer.socket as unknown as { _socket: WebSocket })._socket;
 
-        const localId = uuidv4();
-        console.log("Local ID:", localId);
+		let trustedPeer: string | undefined;
+		let currentCall: MediaConnection | undefined;
+		socket.addEventListener('message', async event => {
+			const ev = JSON.parse(event.data);
 
-        const peer = new Peer(localId, {
-            host: process.env.HOST_SERVER,
-            port: parseInt(process.env.HOST_PORT as string),
-            path: "/",
-        })
+			switch (event.type) {
+				case 'call':
+					connected = true;
 
-        // bro what
-        // type script fuckery-- peer.socket._socket is private, but we use the existing
-        // websocket connection to get notified for who to connect to / expect a call from 
-        const socket = (peer.socket as unknown as {_socket: WebSocket})._socket;
+					// if the server tells it to call a new peer, end any current call
+					if (currentCall) currentCall.close();
 
-        let trustedPeer: string | undefined;
-        let currentCall: MediaConnection | undefined;
-        socket.addEventListener("message", async event => {
-            const ev = JSON.parse(event.data);
+					// call the new peer
+					const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+					currentCall = peer.call(ev.peer, stream);
+					currentCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
+					break;
 
-            switch(event.type) {
-                case "call":
-                    // if the server tells it to call a new peer, end any current call
-                    if (currentCall) currentCall.close();
+				case 'assign':
+					connectedLocation = trustedPeer = ev.peer;
+					break;
+			}
+		});
 
-                    // call the new peer
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false});
-                    currentCall = peer.call(ev.peer, stream);
-                    currentCall.on("stream", remoteStream => videoElement.srcObject = remoteStream);
-                break;
-
-                case "assign":
-                    trustedPeer = ev.peer;
-                break;
-            }
-        })
-
-        peer.on("call", async incomingCall  => {
-            if (incomingCall.peer == trustedPeer) {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false});
-                incomingCall.answer(stream);
-                incomingCall.on("stream", remoteStream => videoElement.srcObject = remoteStream);
-            }
-        })
-
-    })
+		peer.on('call', async incomingCall => {
+			if (incomingCall.peer == trustedPeer) {
+				const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+				incomingCall.answer(stream);
+				incomingCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
+			}
+		});
+	}
 </script>
 
-<!-- <div class="w-max h-max relative"> -->
-    <!-- svelte-ignore a11y-media-has-caption -->
-    <video autoplay bind:this={videoElement} class="absolute w-full h-full"/>
-    <input type="text" class="font-retro text-lg p-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-countespell-pink border-dashed border-4 bg-counterspell-100">
-<!-- </div> -->
+<!-- svelte-ignore a11y-media-has-caption -->
+<video autoplay bind:this={videoElement} class="absolute h-full w-full" />
+<div class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col gap-2">
+	<input
+		type="text"
+		class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none"
+		placeholder="Enter your event name..."
+		bind:value={localId}
+	/>
+	<button class="bg-counterspell-pink p-4 font-retro text-white">ENTER THE PORTAL</button>
+</div>

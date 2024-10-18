@@ -30,7 +30,6 @@
 	"type": "module",
 	"dependencies": {
 		"dotenv": "^16.4.5",
-		"peerjs": "^1.5.4",
-		"uuid": "^10.0.0"
+		"peerjs": "^1.5.4"
 	}
 }
