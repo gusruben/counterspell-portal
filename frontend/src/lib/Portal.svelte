@@ -62,5 +62,5 @@
 		placeholder="Enter your event name..."
 		bind:value={localId}
 	/>
-	<button class="bg-counterspell-pink p-4 font-retro text-white">ENTER THE PORTAL</button>
+	<button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}>ENTER THE PORTAL</button>
 </div>
