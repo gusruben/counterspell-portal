@@ -1,0 +1,16 @@
+{
+  "name": "backend",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "peer": "^1.0.2",
+    "socket.io": "^4.8.0"
+  }
+}

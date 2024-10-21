@@ -15,6 +15,8 @@
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
+		"@types/node": "^22.7.6",
+		"@types/uuid": "^10.0.0",
 		"autoprefixer": "^10.4.20",
 		"prettier": "^3.1.1",
 		"prettier-plugin-svelte": "^3.1.2",
@@ -25,5 +27,10 @@
 		"typescript": "^5.0.0",
 		"vite": "^5.0.3"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@sveltejs/adapter-static": "^3.0.5",
+		"dotenv": "^16.4.5",
+		"peerjs": "^1.5.4"
+	}
 }
