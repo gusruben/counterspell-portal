@@ -1,23 +1,22 @@
 import { PeerServer } from "peer";
 import type { clientList } from "./types";
-import fs from 'fs';
 
 const PORT = 8080;
-
-const ssl = {
-  key: Buffer.from(fs.readFileSync('/etc/letsencrypt/live/gus.ink/privkey.pem')),
-  cert: Buffer.from(fs.readFileSync('/etc/letsencrypt/live/gus.ink/fullchain.pem')),
-};
 
 const peerServer = PeerServer({
   port: PORT,
   path: "/",
-  ssl: ssl,
 });
 
 let clients: clientList = {};
 
 peerServer.on('connection', (client: any) => { //TODO: Get the right type
+    // disconnect more than 2 clients, prototype doesn't support it
+    if (Object.keys(clients).length >= 2) {
+        client.send({type: "error", message: "The demo doesn't support more than 2 clients!"});
+        client.getSocket().close();
+    }
+
     clients[client.getId()] = client;
 
     client.send({

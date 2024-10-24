@@ -4,6 +4,9 @@
 	export let connectedLocation = 'Waiting to connect...';
 	export let connected = false;
 
+	let errorElement: HTMLParagraphElement;
+	let errorText: string = '';
+
 	let videoElement: HTMLVideoElement;
 	let controlsElement: HTMLDivElement;
 	let localId: string;
@@ -32,6 +35,11 @@
 			const ev = JSON.parse(event.data);
 
 			switch (ev.type) {
+				case 'error':
+					connected = false;
+					errorText = ev.message;
+					errorElement.setAttribute('data-error', 'true');
+
 				case 'call':
 					connected = true;
 
@@ -65,6 +73,15 @@
 
 <!-- svelte-ignore a11y-media-has-caption -->
 <video autoplay bind:this={videoElement} class="absolute h-full w-full object-cover" />
+
+<p
+	class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center opacity-0 data-[error]:opacity-100"
+	bind:this={errorElement}
+>
+	Sorry, it looks like something went wrong:
+	<br />
+	{errorText}
+</p>
 
 <div
 	class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col gap-2
