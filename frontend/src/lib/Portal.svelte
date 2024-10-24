@@ -21,7 +21,7 @@
 		const peer = new Peer(localId, {
 			host: import.meta.env.VITE_HOST_SERVER,
 			port: parseInt(import.meta.env.VITE_HOST_PORT as string),
-			path: '/',
+			path: import.meta.env.VITE_HOST_PATH,
 		});
 
 		// bro what
