@@ -16,7 +16,7 @@
 		controlsElement.setAttribute('data-hidden', 'true');
 
 		console.log(
-			`Connecting to wss://${import.meta.env.VITE_HOST_SERVER}:${import.meta.env.VITE_HOST_PORT}`
+			`Connecting to wss://${import.meta.env.VITE_HOST_SERVER}:${import.meta.env.VITE_HOST_PORT}/${import.meta.env.VITE_HOST_PATH}`
 		);
 		const peer = new Peer(localId, {
 			host: import.meta.env.VITE_HOST_SERVER,
