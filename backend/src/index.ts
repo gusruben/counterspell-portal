@@ -3,11 +3,11 @@ import type { IClient } from "peer";
 
 import { type clientList, type clientPairing } from "../types";
 import { CounterspellClient } from "./modules/CounterspellClient";
+import api from "./modules/Api"
 
+const DEMO = process.env.DEMO ?? true
 
-const demo = process.env.DEMO ?? true
-
-const PORT = 8080;
+const PORT = process.env.PEER_PORT ? parseInt(process.env.PEER_PORT) : 8080;
 
 const peerServer = PeerServer({
   port: PORT,
@@ -20,7 +20,7 @@ let pairings: clientPairing[] = [];
 let loner: CounterspellClient | undefined;
 
 peerServer.on('connection', (internalClient: IClient) => {
-    if (Object.keys(clients).length >= 2 && demo) {
+    if (Object.keys(clients).length >= 2 && DEMO) {
         internalClient.send({type: "error", message: "The demo doesn't support more than 2 clients!"});
         internalClient.getSocket()?.close();
     }
@@ -36,13 +36,13 @@ peerServer.on('connection', (internalClient: IClient) => {
         }
     })
 
-    // Before adding the current client there where an odd ammount of clients
+    // Before adding the current client there were an odd ammount of clients
     if (loner) {
         loner.connect(client)
     }
 
     
-    if (Object.keys(clients).length > 1 && demo) {
+    if (Object.keys(clients).length > 1 && DEMO) {
         let sorted = Object.values(clients);
 
         console.log(`Making ${sorted[1].getId()} call ${sorted[0].getId()}`)
@@ -70,3 +70,5 @@ peerServer.on('disconnect', (internalClient: IClient) => {
 
     console.log(`Disconnection from ${client.getId()}`)
 });
+
+api(clients);

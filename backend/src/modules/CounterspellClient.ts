@@ -26,6 +26,13 @@ export class CounterspellClient {
                 id: isPrimaryPeer ? connectingPeerId : this.id
             }
         })
+
+        this.partner = connectingPeer;
+        connectingPeer.partner = this;
+        
+
+        connectingPeer.history.push(this.id);
+        this.history.push(connectingPeerId);
     };
 
     disconnect(message: string) {
@@ -33,6 +40,9 @@ export class CounterspellClient {
 
         // Peer is still open
         if (this.partner.internalClient.getSocket()?.readyState == 1) {
+
+            this.partner.partner = undefined;
+
             this.partner.internalClient.send({
                 type: "disconnect",
                 data: {
@@ -47,9 +57,19 @@ export class CounterspellClient {
                 message
             }
         })
+
+        this.partner = undefined;
     };
 
     internalClient: IClient;
     id: string;
     partner: CounterspellClient | undefined;
+    /*
+
+        Decided to change to a string[] instead of a CounterspellClient[] because disconnects
+    are bound to happen so i'd like weighting to not reset whenever someone reconnects.ID's should 
+    fix that.
+
+    */
+   history: string[] = [];
 }
