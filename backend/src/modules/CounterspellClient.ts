@@ -14,14 +14,14 @@ export class CounterspellClient {
         const isPrimaryPeer = [connectingPeerId, this.internalClient.getId()].toSorted()[0] == this.id;
 
         connectingPeer.internalClient.send({
-            type: isPrimaryPeer ? "trustedPeer" : "call",
+            type: isPrimaryPeer ? "assign" : "call",
             data: {
                 id: isPrimaryPeer ? this.id : connectingPeerId
             }
         });
 
         this.internalClient.send({
-            type: isPrimaryPeer ? "call" : "trustedPeer",
+            type: isPrimaryPeer ? "call" : "assign",
             data: {
                 id: isPrimaryPeer ? connectingPeerId : this.id
             }
