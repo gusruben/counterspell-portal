@@ -44,7 +44,7 @@
 					connected = true;
 
 					// if the server tells it to call a new peer, end any current call
-					if (currentCall) currentCall.close();
+					if (currentCall && currentCall.open) currentCall.close();
 
 					// call the new peer
 					console.log('Calling', peer);
@@ -58,6 +58,14 @@
 					console.log('Got assigned', peer);
 					connectedLocation = trustedPeer = ev.peer;
 					break;
+
+				case "disconnect":
+					connected = false;
+					console.log("Disconnecting from previous call");
+
+					if(currentCall && currentCall.open) currentCall.close();
+					
+					//TODO: Change to show waiting for next call.
 			}
 		});
 
