@@ -43,12 +43,12 @@ export default (clients: clientList) => {
     let lastRefresh: number | undefined;
 
     const refreshConnections = () => {
+        // Typescript is causing problems with for .. of so using in for now, if you know how fix please
 
-        //@ts-ignore (I hate doing this but any other fix would require something worse)
-        for (const _client of clients) {
+        for (const _client in clients) {
 
             //Typing patch for above
-            const client: CounterspellClient = _client;
+            const client: CounterspellClient = clients[_client];
 
             if (client.partner) {
                 client.disconnect(`Matching with a new event...`)
@@ -58,11 +58,10 @@ export default (clients: clientList) => {
         
         let availableClients = {...clients}
 
-        //@ts-ignore
-        for (const _client of clients) {
+        for (const _client in clients) {
 
             //Typing patch for above
-            const client: CounterspellClient = _client;
+            const client: CounterspellClient = clients[_client];
 
             if(client.partner) continue;
 
@@ -93,7 +92,7 @@ export default (clients: clientList) => {
     app.get(`/startTimer`, function(req, res) {
         if(!DEMO) {
             if (req.headers["authorization"] != ADMINKEY) return res.status(403).json({
-                passed: false,
+                success: false,
                 message: "unauthorized request"
             });
         }
@@ -101,10 +100,12 @@ export default (clients: clientList) => {
         refreshConnections();
 
         internval = setInterval(refreshConnections, 900000);
+
+        return res.json({success: true})
     })
 
     app.get(`/lastRefresh`, function(req, res) {
-        return res.json({passed: true, refresh: lastRefresh})
+        return res.json({success: true, refresh: lastRefresh})
     })
 
     app.listen(process.env.PORT || 8081, () => {

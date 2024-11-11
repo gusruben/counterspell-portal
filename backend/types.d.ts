@@ -4,7 +4,7 @@ import type { IClient } from "peer";
 // interface clientList extends Object {
 //     [key: string]: counterspellClient
 // }
-type clientList = {
+interface clientList extends Object {
     [key: string]: counterspellClient
 }
 
