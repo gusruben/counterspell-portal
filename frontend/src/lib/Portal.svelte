@@ -43,7 +43,6 @@
 
 		const socket = (peer.socket as unknown as { _socket: WebSocket })._socket;
 
-		let trustedPeer: string | undefined;
 		let currentCall: MediaConnection | undefined;
 		socket.addEventListener('message', async event => {
 			const ev = JSON.parse(event.data);
@@ -69,7 +68,6 @@
 				case 'assign':
 					connected = true;
 					console.log('Got assigned', ev.peer);
-					trustedPeer = ev.peer;
 					break;
 
 				case "disconnect":
@@ -86,13 +84,9 @@
 		});
 
 		peer.on('call', async incomingCall => {
-			if (incomingCall.peer == trustedPeer) {
-				const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-				incomingCall.answer(stream);
-				incomingCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
-
-				connectedLocation = trustedPeer;
-			}
+			const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+			incomingCall.answer(stream);
+			incomingCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
 		});
 
 		peer.on('error', err => {
