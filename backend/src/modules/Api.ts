@@ -4,6 +4,7 @@ import type { CounterspellClient } from "./CounterspellClient";
 
 const DEMO = process.env.DEMO === "true" ? true : false;
 const ADMINKEY = process.env.ADMINKEY ?? "portalspell"
+const switchInterval = process.env.INTERVAL ?? 15
 
 function weightedAverage (content: number[], weights: number[]) : number {
     return content.reduce((previous, current, idx) => {
@@ -84,29 +85,29 @@ export default (clients: clientList) => {
         lastRefresh = Date.now();
     }
 
-    const intervalMilliseconds = 900000; // 15 minutes
+    const intervalMilliseconds = (switchInterval * 60) * 1000; // 15 minutes = 900000, set to 30 secs for testing
 
     if (!DEMO) {
         refreshConnections();
         intervalHandle = setInterval(refreshConnections, intervalMilliseconds);
     }
 
-    app.get(`/startTimer`, function(req, res) {
-        if(!DEMO) {
-            console.log(`unauthorized '${req.headers["Authorization"]} != ${ADMINKEY}'`)
-            if (req.headers["Authorization"] != ADMINKEY) return res.status(403).json({
-                success: false,
-                message: "unauthorized request"
-            });
-        }
+    // app.get(`/startTimer`, function(req, res) {
+    //     if(!DEMO) {
+    //         console.log(`unauthorized '${req.headers["Authorization"]} != ${ADMINKEY}'`)
+    //         if (req.headers["Authorization"] != ADMINKEY) return res.status(403).json({
+    //             success: false,
+    //             message: "unauthorized request"
+    //         });
+    //     }
 
-        if (!intervalHandle) {
-            refreshConnections();
-            intervalHandle = setInterval(refreshConnections, intervalMilliseconds);
-        }
+    //     if (!intervalHandle) {
+    //         refreshConnections();
+    //         intervalHandle = setInterval(refreshConnections, intervalMilliseconds);
+    //     }
 
-        return res.json({success: true})
-    })
+    //     return res.json({success: true})
+    // })
 
     app.get(`/lastRefresh`, function(req, res) {
         return res.json({success: true, refresh: lastRefresh})

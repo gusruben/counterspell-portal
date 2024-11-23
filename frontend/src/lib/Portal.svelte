@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Peer, { type MediaConnection } from 'peerjs';
+	import { onMount } from 'svelte';
 
 	export let connectedLocation = 'Waiting to connect...';
 	export let connected = false;
@@ -11,6 +12,9 @@
 	let controlsElement: HTMLDivElement;
 	let localId: string;
 
+	let timer = "00:00";
+	let timeLeft = import.meta.env.INTERVAL * 60 * 1000;
+
 	const cities = [
 		'Visakhapatnam', 'Chandigarh', 'Bydgoszcz', 'Dubai', 'London', 'Tampa',
 		'Boston', 'Saint Augustine', 'Oshkosh', 'Toronto', 'Auckland', 'Silicon Valley',
@@ -21,6 +25,17 @@
 		'Giza', 'Austin', 'Wolverhampton', 'Muzaffarpur', 'Patna', 'Moses Lake', 'Lima',
 		'Bengaluru', 'El Paso', 'Valenzuela'
 	];
+
+	async function refreshTimer() {
+		const res = await fetch(`https://${import.meta.env.VITE_HOST_APISERVER}:${import.meta.env.VITE_HOST_ADMIN_PORT}/lastRefresh`);
+		const { refresh } = await res.json();
+		timeLeft = (import.meta.env.INTERVAL * 60 * 1000) - (Date.now() - refresh);
+		updateTimer();
+	}
+
+	function updateTimer() {
+		timer = `${timeLeft % 60}:${Math.floor(timeLeft / 60)}`
+	}
 
 	function initiateConnection() {
 		localId = localId.trim().toLowerCase();
@@ -68,6 +83,8 @@
 				case 'assign':
 					connected = true;
 					console.log('Got assigned', ev.data.id);
+					connectedLocation = ev.data.id;
+					connectedLocation = connectedLocation.charAt(0).toUpperCase() + connectedLocation.slice(1);
 					break;
 
 				case "disconnect":
@@ -98,6 +115,17 @@
 			controlsElement.removeAttribute('data-hidden');
 		});
 	}
+
+	onMount(() => {
+		setInterval(() => {
+			if (connected) {
+				updateTimer();
+				timeLeft -= 1000;
+			} else {
+				timeLeft = import.meta.env.INTERVAL * 60 * 1000;
+			}
+		}, 1000)
+	})
 </script>
 
 <video autoplay bind:this={videoElement} class="absolute h-full w-full object-cover" />
