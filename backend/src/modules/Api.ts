@@ -1,10 +1,21 @@
 import express from "express"
+import bodyParser from "body-parser";
 import type { clientList } from "../../types";
 import type { CounterspellClient } from "./CounterspellClient";
+import fs from "fs";
 
 const DEMO = process.env.DEMO === "true" ? true : false;
 const ADMINKEY = process.env.ADMINKEY ?? "portalspell"
 const switchInterval = process.env.INTERVAL ?? 15
+
+const MESSAGE_FILE_PATH  = __dirname + "/messages.json";
+let MESSAGES: {[key: number]: string};
+if (!fs.existsSync(MESSAGE_FILE_PATH)) {
+    MESSAGES = {};
+    fs.writeFileSync(MESSAGE_FILE_PATH, JSON.stringify(MESSAGES));
+} else {
+    MESSAGES = JSON.parse(fs.readFileSync(MESSAGE_FILE_PATH).toString());
+}
 
 function weightedAverage (content: number[], weights: number[]) : number {
     return content.reduce((previous, current, idx) => {
@@ -41,6 +52,7 @@ function gradeComptability (primary: CounterspellClient, secondary: Counterspell
 
 export default (clients: clientList) => {
     const app = express();
+    app.use(bodyParser.text());
     console.log("Admin key:", ADMINKEY)
 
     let intervalHandle: NodeJS.Timer | undefined;
@@ -121,6 +133,24 @@ export default (clients: clientList) => {
     app.get(`/lastRefresh`, function(req, res) {
         res.set('Access-Control-Allow-Origin', '*');
         return res.json({success: true, refresh: lastRefresh})
+    })
+
+    app.get("/messages", (req, res) => {
+        return res.json(JSON.parse(fs.readFileSync(MESSAGE_FILE_PATH).toString()));
+    })
+    app.post("/messages", (req, res) => {
+        if (req.headers["authorization"] != ADMINKEY) return res.status(403).json({
+            success: false,
+            message: "unauthorized request"
+        });
+
+        const msg = req.body;
+        console.log("got a new message!", msg)
+
+        MESSAGES[Date.now()] = msg;
+        fs.writeFileSync(MESSAGE_FILE_PATH, JSON.stringify(MESSAGES));
+
+        return res.json({success: true})
     })
 
     app.listen(process.env.PORT || 8081, () => {

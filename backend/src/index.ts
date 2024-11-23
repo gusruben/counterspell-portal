@@ -1,5 +1,6 @@
 import { PeerServer } from "peer";
 import type { IClient } from "peer";
+import fs from "fs";
 
 import { type clientList, type clientPairing } from "../types";
 import { CounterspellClient } from "./modules/CounterspellClient";
