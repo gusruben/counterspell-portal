@@ -65,7 +65,7 @@ peerServer.on('disconnect', (internalClient: IClient) => {
 
     delete clients[internalClient.getId()]
 
-    console.log(`Disconnection from ${client.getId()}`)
+    console.log(`Disconnection from ${internalClient.getId()}`)
 });
 
 api(clients);
