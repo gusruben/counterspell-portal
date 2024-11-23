@@ -46,8 +46,8 @@
 		// 	return;
 		// }
 		let seconds = String(Math.floor(timeLeft / 1000) % 60);
-		if (Math.floor(timeLeft / 1000) % 60 == 0) {
-			seconds = "00"
+		if (Math.floor(timeLeft / 1000) % 60 < 10) {
+			seconds = "0" + seconds;
 		}
 		timer = `${Math.floor((timeLeft / 1000) / 60)}:${seconds}`
 		timeLeft -= 1000;
