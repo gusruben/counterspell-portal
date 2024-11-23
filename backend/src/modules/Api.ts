@@ -15,6 +15,7 @@ function weightedAverage (content: number[], weights: number[]) : number {
 function gradeComptability (primary: CounterspellClient, secondary: CounterspellClient) {
     let content = [];
 
+    /*
     content[0] = (()=> {
         let count = 0;
 
@@ -32,6 +33,10 @@ function gradeComptability (primary: CounterspellClient, secondary: Counterspell
         -2, // Previous connection count
         1, // Random value
     ])
+
+    */
+
+    return Math.floor(Math.random() * 50) + 1;
 }
 
 export default (clients: clientList) => {
