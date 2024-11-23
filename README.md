@@ -6,4 +6,4 @@ This project was partially inspired by the [NYC-Dublin Portal](https://en.wikipe
 
 If you want to help develop Counterspell Portal, join [#counterspell-portal](https://hackclub.slack.com/archives/C07S8ECQZ5W) on slack! This project is powered by [Svelte](https://svelte.dev/) and [PeerJS](https://peerjs.com/).
 
-![Counterspell Portal](https://cloud-hxjnak14p-hack-club-bot.vercel.app/0image.png)
+![image](https://github.com/user-attachments/assets/419dfd65-3794-415d-8da4-3427a20d615f)
