@@ -45,7 +45,11 @@
 		// 	timer = "00:00";
 		// 	return;
 		// }
-		timer = `${Math.floor((timeLeft / 1000) / 60)}:${Math.floor(timeLeft / 1000) % 60}`
+		let seconds = String(Math.floor(timeLeft / 1000) % 60);
+		if (Math.floor(timeLeft / 1000) % 60 == 0) {
+			seconds = "00"
+		}
+		timer = `${Math.floor((timeLeft / 1000) / 60)}:${seconds}`
 		timeLeft -= 1000;
 		if (timeLeft <= 0) {
 			timeLeft = (import.meta.env.VITE_INTERVAL * 60 * 1000)
@@ -59,6 +63,8 @@
 			errorElement.setAttribute('data-error', 'true');
 			return;
 		}
+
+		firstConnect = true;
 
 		if (passwordInput.value != import.meta.env.VITE_AUTH_TOKEN) {
 			return;
@@ -89,7 +95,6 @@
 
 				case 'call':
 					connected = true;
-					firstConnect = true;
 
 					if (currentCall && currentCall.open) currentCall.close();
 
@@ -109,7 +114,6 @@
 
 				case 'assign':
 					connected = true;
-					firstConnect = true;
 					console.log('Got assigned', ev.data.id);
 					connectedLocation = ev.data.id;
 					connectedLocation = connectedLocation.charAt(0).toUpperCase() + connectedLocation.slice(1);
