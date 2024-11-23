@@ -1,9 +1,39 @@
 <script lang="ts">
 	import Portal from '$lib/Portal.svelte';
+	import { onMount } from 'svelte';
+	import { Toaster, toast } from 'svelte-sonner'
 
 	let connectedLocation: string;
 	let timer: string;
+
+	let lastMessageCheck = Date.now();
+
+	async function checkMessages() {
+		const messages = await (await fetch("/messages")).json();
+		for (let timestamp of Object.keys(messages)) {
+			console.log(timestamp, lastMessageCheck)
+			if (Number.parseInt(timestamp) > lastMessageCheck) {
+				console.log("New message:", timestamp, messages[timestamp]);
+				toast(messages[timestamp], {
+					duration: Number.POSITIVE_INFINITY
+				});
+			}
+		}
+
+		lastMessageCheck = Date.now();
+	}
+
+	onMount(() => {
+		setInterval(checkMessages, 5000);
+	})
 </script>
+
+<Toaster toastOptions={{
+	unstyled: true,
+	classes: {
+		toast: "bg-[#0A081E] rounded-none border-counterspell-pink border-4 border-dashed text-white text-xl font-retro px-3"
+	}
+}}/>
 
 <div class="fixed inset-0 flex flex-col items-center gap-10 bg-counterspell-500 px-36 py-16 ">
 	<div class="flex flex-row absolute left-14 top-10 justify-center items-center">

@@ -32,6 +32,7 @@
 		"@sveltejs/adapter-node": "^5.2.9",
 		"@sveltejs/adapter-static": "^3.0.5",
 		"dotenv": "^16.4.5",
-		"peerjs": "^1.5.4"
+		"peerjs": "^1.5.4",
+		"svelte-sonner": "^0.3.28"
 	}
 }
