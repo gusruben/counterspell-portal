@@ -59,15 +59,15 @@
 
 					if (currentCall && currentCall.open) currentCall.close();
 
-					console.log('Calling', ev.peer);
+					console.log('Calling', ev.data.id);
 					const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-					currentCall = peer.call(ev.peer, stream);
+					currentCall = peer.call(ev.data.id, stream);
 					currentCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
 					break;
 
 				case 'assign':
 					connected = true;
-					console.log('Got assigned', ev.peer);
+					console.log('Got assigned', ev.data.id);
 					break;
 
 				case "disconnect":
