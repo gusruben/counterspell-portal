@@ -109,21 +109,23 @@
 	{errorText}
 </p>
 
-<div
-	class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col gap-2
-			transition-transform ease-in-out data-[hidden]:scale-0"
-	bind:this={controlsElement}
->
-	<select
-		class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none"
-		bind:value={localId}
-		>
-		<option value="" disabled selected>Select your event city...</option>
-		{#each cities as city}
-			<option value={city}>{city}</option>
-		{/each}
-	</select>
-	<button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}
-		>ENTER THE PORTAL</button
+{#if !connected}
+	<div
+		class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col gap-2
+				transition-transform ease-in-out data-[hidden]:scale-0"
+		bind:this={controlsElement}
 	>
-</div>
+		<select
+			class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none"
+			bind:value={localId}
+			>
+			<option value="" disabled selected>Select your event city...</option>
+			{#each cities as city}
+				<option value={city}>{city}</option>
+			{/each}
+		</select>
+		<button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}
+			>ENTER THE PORTAL</button
+		>
+	</div>
+{/if}
