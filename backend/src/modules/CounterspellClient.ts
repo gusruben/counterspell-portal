@@ -14,15 +14,18 @@ export class CounterspellClient {
         // Identify the primary peer in a way that will be identical between both clients (might be unnecessary later)
         const isPrimaryPeer = [connectingPeerId, this.internalClient.getId()].sort()[0] == this.id;
 
+
+        console.log(`Connecting ${this.internalClient.getId()} to ${connectingPeerId}, is primary peer? ${isPrimaryPeer}, action: ${isPrimaryPeer ? "call" : "assign"} | ${isPrimaryPeer ? this.id : connectingPeerId}, sentAction: ${isPrimaryPeer ? "assign" : "call"} | ${isPrimaryPeer ? connectingPeerId : this.id}`)
+        
         connectingPeer.internalClient.send({
-            type: isPrimaryPeer ? "assign" : "call",
+            type: isPrimaryPeer ? "call" : "assign",
             data: {
                 id: isPrimaryPeer ? this.id : connectingPeerId
             }
         });
 
         this.internalClient.send({
-            type: isPrimaryPeer ? "call" : "assign",
+            type: isPrimaryPeer ? "assign" : "call",
             data: {
                 id: isPrimaryPeer ? connectingPeerId : this.id
             }
