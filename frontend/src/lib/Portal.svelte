@@ -11,8 +11,25 @@
 	let controlsElement: HTMLDivElement;
 	let localId: string;
 
+	const cities = [
+		'Visakhapatnam', 'Chandigarh', 'Bydgoszcz', 'Dubai', 'London', 'Tampa',
+		'Boston', 'Saint Augustine', 'Oshkosh', 'Toronto', 'Auckland', 'Silicon Valley',
+		'Seoul', 'Chennai', 'Manassas', 'Atlanta', 'San Diego', 'Dhaka', 'Delhi',
+		'Singapore', 'Vidisha', 'Alexandria', 'Lahore', 'Cambridge', 'Sydney', 'Nairobi',
+		'Rwamagana', 'Ottawa', 'Washington DC', 'Columbus', 'Casablanca', 'Nablus',
+		'Vancouver', 'New York', 'Phoenix', 'Winnipeg', 'Busan', 'Hong Kong', 'Bergen',
+		'Giza', 'Austin', 'Wolverhampton', 'Muzaffarpur', 'Patna', 'Moses Lake', 'Lima',
+		'Bengaluru', 'El Paso', 'Valenzuela'
+	];
+
 	function initiateConnection() {
-		// hide the controls
+		localId = localId.trim().toLowerCase();
+		if (!localId) {
+			errorText = 'Please enter your event name.';
+			errorElement.setAttribute('data-error', 'true');
+			return;
+		}
+
 		controlsElement.setAttribute('data-hidden', 'true');
 
 		console.log(
@@ -24,9 +41,6 @@
 			path: import.meta.env.VITE_HOST_PATH,
 		});
 
-		// bro what
-		// type script fuckery-- peer.socket._socket is private, but we want that existing
-		// websocket connection to get notified for who to connect to / expect a call from
 		const socket = (peer.socket as unknown as { _socket: WebSocket })._socket;
 
 		let trustedPeer: string | undefined;
@@ -39,14 +53,13 @@
 					connected = false;
 					errorText = ev.message;
 					errorElement.setAttribute('data-error', 'true');
+					break;
 
 				case 'call':
 					connected = true;
 
-					// if the server tells it to call a new peer, end any current call
 					if (currentCall && currentCall.open) currentCall.close();
 
-					// call the new peer
 					console.log('Calling', peer);
 					const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
 					currentCall = peer.call(ev.peer, stream);
@@ -65,7 +78,10 @@
 
 					if(currentCall && currentCall.open) currentCall.close();
 					
-					//TODO: Change to show waiting for next call.
+					// Show waiting message or UI
+					connectedLocation = 'Waiting for next call...';
+					controlsElement.removeAttribute('data-hidden');
+					break;
 			}
 		});
 
@@ -76,18 +92,24 @@
 				incomingCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
 			}
 		});
+
+		peer.on('error', err => {
+			console.error('Peer error:', err);
+			errorText = err.type === 'unavailable-id' 
+			  ? 'A client from your city is already connected!'
+			  : 'An error occurred: ' + err.message;
+			errorElement.setAttribute('data-error', 'true');
+			controlsElement.removeAttribute('data-hidden');
+		});
 	}
 </script>
 
-<!-- svelte-ignore a11y-media-has-caption -->
 <video autoplay bind:this={videoElement} class="absolute h-full w-full object-cover" />
 
 <p
 	class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center opacity-0 data-[error]:opacity-100"
 	bind:this={errorElement}
 >
-	Sorry, it looks like something went wrong:
-	<br />
 	{errorText}
 </p>
 
@@ -96,12 +118,15 @@
 			transition-transform ease-in-out data-[hidden]:scale-0"
 	bind:this={controlsElement}
 >
-	<input
-		type="text"
+	<select
 		class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none"
-		placeholder="Enter your event name..."
 		bind:value={localId}
-	/>
+		>
+		<option value="" disabled selected>Select your event city...</option>
+		{#each cities as city}
+			<option value={city}>{city}</option>
+		{/each}
+	</select>
 	<button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}
 		>ENTER THE PORTAL</button
 	>

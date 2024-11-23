@@ -6,12 +6,13 @@ export class CounterspellClient {
     constructor(internal: IClient) {
         this.internalClient = internal;
         this.id = internal.getId();
+        this.city = this.id;
     }
 
     connect(connectingPeer: CounterspellClient) {
         const connectingPeerId = connectingPeer.internalClient.getId();
         // Identify the primary peer in a way that will be identical between both clients (might be unnecessary later)
-        const isPrimaryPeer = [connectingPeerId, this.internalClient.getId()].toSorted()[0] == this.id;
+        const isPrimaryPeer = [connectingPeerId, this.internalClient.getId()].sort()[0] == this.id;
 
         connectingPeer.internalClient.send({
             type: isPrimaryPeer ? "assign" : "call",
@@ -63,13 +64,7 @@ export class CounterspellClient {
 
     internalClient: IClient;
     id: string;
+    city: string;
     partner: CounterspellClient | undefined;
-    /*
-
-        Decided to change to a string[] instead of a CounterspellClient[] because disconnects
-    are bound to happen so i'd like weighting to not reset whenever someone reconnects.ID's should 
-    fix that.
-
-    */
-   history: string[] = [];
+    history: string[] = [];
 }

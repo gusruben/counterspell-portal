@@ -5,7 +5,7 @@ import { type clientList, type clientPairing } from "../types";
 import { CounterspellClient } from "./modules/CounterspellClient";
 import api from "./modules/Api"
 
-const DEMO = process.env.DEMO ?? true
+const DEMO = process.env.DEMO === "true" ? true : false;
 
 const PORT = process.env.PEER_PORT ? parseInt(process.env.PEER_PORT) : 8080;
 
@@ -20,9 +20,10 @@ let pairings: clientPairing[] = [];
 let loner: CounterspellClient | undefined;
 
 peerServer.on('connection', (internalClient: IClient) => {
-    if (Object.keys(clients).length >= 2 && DEMO) {
-        internalClient.send({type: "error", message: "The demo doesn't support more than 2 clients!"});
+    if (clients[internalClient.getId()]) {
+        internalClient.send({ type: "error", message: "A client from your city is already connected!" });
         internalClient.getSocket()?.close();
+        return;
     }
 
     const client = new CounterspellClient(internalClient);
@@ -36,25 +37,21 @@ peerServer.on('connection', (internalClient: IClient) => {
         }
     })
 
-    // Before adding the current client there were an odd ammount of clients
-    if (loner) {
-        loner.connect(client)
-    }
+    if (DEMO) {
+        if (Object.keys(clients).length > 1) {
+            let sorted = Object.values(clients);
 
-    
-    if (Object.keys(clients).length > 1 && DEMO) {
-        let sorted = Object.values(clients);
+            console.log(`Making ${sorted[1].getId()} call ${sorted[0].getId()}`)
+            sorted[0].send({
+                type: "assign",
+                peer: sorted[1].getId()
+            })
 
-        console.log(`Making ${sorted[1].getId()} call ${sorted[0].getId()}`)
-        sorted[0].send({
-            type: "assign",
-            peer: sorted[1].getId()
-        })
-
-        sorted[1].send({
-            type: "call",
-            peer: sorted[0].getId()
-        })
+            sorted[1].send({
+                type: "call",
+                peer: sorted[0].getId()
+            })
+        }
     }
 });
 
