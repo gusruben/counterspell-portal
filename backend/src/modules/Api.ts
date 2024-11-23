@@ -97,6 +97,7 @@ export default (clients: clientList) => {
                 success: false,
                 message: "unauthorized request"
             });
+            console.log(`unauthorized '${req.headers["Authorization"]} != ${ADMINKEY}'`)
         }
 
         if (!intervalHandle) {

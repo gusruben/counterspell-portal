@@ -42,12 +42,11 @@ peerServer.on('connection', (internalClient: IClient) => {
         }
     })
 
+    console.log(`Loner identified? ${loner} `)
     if  (loner) {
         loner.connect(client)
         loner = undefined;
-    }
-
-    if (clients.length() % 2 != 0) {
+    } else {
         loner = client;
     }
 
