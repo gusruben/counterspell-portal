@@ -23,15 +23,14 @@ function gradeComptability (primary: CounterspellClient, secondary: Counterspell
                 count++;
             }
         }
-
         return count
     })()
 
-    content[1] = Math.floor(Math.random() * 10) + 1
+    content[1] = Math.floor(Math.random() * 50) + 1
 
     return weightedAverage(content, [
-        -0.5, // Previous connection count
-        1.5, // Random value
+        -2, // Previous connection count
+        1, // Random value
     ])
 }
 
@@ -54,6 +53,8 @@ export default (clients: clientList) => {
 
         for (const clientId of availableClientIds) {
             const client = availableClients[clientId];
+
+            if(!client) continue;
             if (client.partner) continue;
 
             let topScore = Number.MIN_VALUE;
@@ -63,6 +64,7 @@ export default (clients: clientList) => {
                 if (otherClientId === clientId) continue;
                 const otherClient = availableClients[otherClientId];
 
+                if(!client || !otherClient) continue;
                 if (client.city === otherClient.city) continue; // Skip same city
 
                 const score = gradeComptability(client, otherClient);
@@ -76,6 +78,8 @@ export default (clients: clientList) => {
             if (topMatchId) {
                 const topMatch = availableClients[topMatchId];
                 client.connect(topMatch);
+
+                console.log(`Top match found for ${client.id} was ${topMatchId}, score was ${topScore}`)
 
                 delete availableClients[clientId];
                 delete availableClients[topMatchId];
@@ -110,6 +114,7 @@ export default (clients: clientList) => {
     // })
 
     app.get(`/lastRefresh`, function(req, res) {
+        res.set('Access-Control-Allow-Origin', '*');
         return res.json({success: true, refresh: lastRefresh})
     })
 

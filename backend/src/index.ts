@@ -42,8 +42,6 @@ peerServer.on('connection', (internalClient: IClient) => {
         }
     })
 
-    console.log(`Loner identified?`, loner)
-
     if  (loner && loner != client) {
         loner.connect(client)
         loner = undefined;
@@ -76,8 +74,7 @@ peerServer.on('disconnect', (internalClient: IClient) => {
     if (client && client.partner) {
         client.partner.disconnect(`${internalClient.getId()} disconnected prematurely`)
 
-        console.log(`Loner: `, loner)
-        if  (loner && loner != client) {
+        if (loner && loner != client.partner) {
             loner.connect(client.partner)
             loner = undefined;
         } else {

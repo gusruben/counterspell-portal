@@ -10,10 +10,15 @@
 
 	let videoElement: HTMLVideoElement;
 	let controlsElement: HTMLDivElement;
+	let passwordInput: HTMLInputElement;
 	let localId: string;
+	let firstConnect = false;
 
-	let timer = "00:00";
+	let currentCall:  MediaConnection | undefined;
+
+	export let timer = "00:00";
 	let timeLeft = import.meta.env.INTERVAL * 60 * 1000;
+	
 
 	const cities = [
 		'Visakhapatnam', 'Chandigarh', 'Bydgoszcz', 'Dubai', 'London', 'Tampa',
@@ -27,14 +32,24 @@
 	];
 
 	async function refreshTimer() {
-		const res = await fetch(`https://${import.meta.env.VITE_HOST_APISERVER}:${import.meta.env.VITE_HOST_ADMIN_PORT}/lastRefresh`);
+		console.log("refreshing timer!")
+		const res = await fetch(`/lastRefresh`);
 		const { refresh } = await res.json();
-		timeLeft = (import.meta.env.INTERVAL * 60 * 1000) - (Date.now() - refresh);
+		timeLeft = (import.meta.env.VITE_INTERVAL * 60 * 1000) - (Date.now() - refresh);
+		console.log("initial time left:", timeLeft)
 		updateTimer();
 	}
 
 	function updateTimer() {
-		timer = `${timeLeft % 60}:${Math.floor(timeLeft / 60)}`
+		// if (Number.isNaN(timeLeft)) {
+		// 	timer = "00:00";
+		// 	return;
+		// }
+		timer = `${Math.floor((timeLeft / 1000) / 60)}:${Math.floor(timeLeft / 1000) % 60}`
+		timeLeft -= 1000;
+		if (timeLeft <= 0) {
+			timeLeft = (import.meta.env.VITE_INTERVAL * 60 * 1000)
+		}
 	}
 
 	function initiateConnection() {
@@ -42,6 +57,10 @@
 		if (!localId) {
 			errorText = 'Please enter your event name.';
 			errorElement.setAttribute('data-error', 'true');
+			return;
+		}
+
+		if (passwordInput.value != import.meta.env.VITE_AUTH_TOKEN) {
 			return;
 		}
 
@@ -58,7 +77,6 @@
 
 		const socket = (peer.socket as unknown as { _socket: WebSocket })._socket;
 
-		let currentCall: MediaConnection | undefined;
 		socket.addEventListener('message', async event => {
 			const ev = JSON.parse(event.data);
 
@@ -71,6 +89,7 @@
 
 				case 'call':
 					connected = true;
+					firstConnect = true;
 
 					if (currentCall && currentCall.open) currentCall.close();
 
@@ -78,13 +97,24 @@
 					const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
 					currentCall = peer.call(ev.data.id, stream);
 					currentCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
+					currentCall.on('close', () => {
+						videoElement.srcObject = null;
+						currentCall = undefined;
+					});
+
+					connectedLocation = ev.data.id;
+					refreshTimer();
+					
 					break;
 
 				case 'assign':
 					connected = true;
+					firstConnect = true;
 					console.log('Got assigned', ev.data.id);
 					connectedLocation = ev.data.id;
 					connectedLocation = connectedLocation.charAt(0).toUpperCase() + connectedLocation.slice(1);
+
+					refreshTimer();
 					break;
 
 				case "disconnect":
@@ -92,18 +122,28 @@
 					console.log("Disconnecting from previous call");
 
 					if(currentCall && currentCall.open) currentCall.close();
+					currentCall = undefined;
 					
 					// Show waiting message or UI
 					connectedLocation = 'Waiting for next call...';
 					controlsElement.removeAttribute('data-hidden');
+
+					videoElement.srcObject = null;
 					break;
 			}
 		});
 
 		peer.on('call', async incomingCall => {
 			const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+
+			currentCall = incomingCall
 			incomingCall.answer(stream);
 			incomingCall.on('stream', remoteStream => (videoElement.srcObject = remoteStream));
+
+			incomingCall.on('close', () => {
+				videoElement.srcObject = null;
+				currentCall = undefined;
+			});
 		});
 
 		peer.on('error', err => {
@@ -117,27 +157,31 @@
 	}
 
 	onMount(() => {
-		setInterval(() => {
-			if (connected) {
-				updateTimer();
-				timeLeft -= 1000;
-			} else {
-				timeLeft = import.meta.env.INTERVAL * 60 * 1000;
-			}
-		}, 1000)
+		refreshTimer();
+		setInterval(updateTimer, 1000);
 	})
 </script>
 
-<video autoplay bind:this={videoElement} class="absolute h-full w-full object-cover" />
+<div class="absolute h-full w-full overflow-hidden">
+	<video autoplay bind:this={videoElement} class="absolute h-full w-full object-cover" />
+</div>
+
 
 <p
 	class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center opacity-0 data-[error]:opacity-100"
 	bind:this={errorElement}
 >
-	{errorText}
+	<!-- {errorText} -->
 </p>
 
-{#if !connected}
+{#if firstConnect && !currentCall}
+	<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-retro">
+		<p class="text-center text-counterspell-pink text-3xl mx-auto w-max">You'll be connected shortly...</p>
+		<p class="text-center text-white text-xl opacity-70 mx-auto w-max">If it's taking a while, there might be an odd number of events!</p>
+	</div>
+{/if}
+
+{#if !firstConnect}
 	<div
 		class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col gap-2
 				transition-transform ease-in-out data-[hidden]:scale-0"
@@ -152,6 +196,7 @@
 				<option value={city}>{city}</option>
 			{/each}
 		</select>
+		<input type="password" class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none" placeholder="Auth Token" bind:this={passwordInput}>
 		<button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}
 			>ENTER THE PORTAL</button
 		>

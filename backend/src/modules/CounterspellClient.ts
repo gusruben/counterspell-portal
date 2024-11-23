@@ -12,22 +12,30 @@ export class CounterspellClient {
     connect(connectingPeer: CounterspellClient) {
         const connectingPeerId = connectingPeer.internalClient.getId();
         // Identify the primary peer in a way that will be identical between both clients (might be unnecessary later)
-        const isPrimaryPeer = [connectingPeerId, this.internalClient.getId()].sort()[0] == this.id;
+        //const isPrimaryPeer = [connectingPeerId, this.internalClient.getId()].sort()[0] == this.id;
 
 
-        console.log(`Connecting ${this.internalClient.getId()} to ${connectingPeerId}, is primary peer? ${isPrimaryPeer}, action: ${isPrimaryPeer ? "call" : "assign"} | ${isPrimaryPeer ? this.id : connectingPeerId}, sentAction: ${isPrimaryPeer ? "assign" : "call"} | ${isPrimaryPeer ? connectingPeerId : this.id}`)
-        
+        if (connectingPeerId == this.id) {
+            console.log(`Fatal error: ${connectingPeerId} ??? Like actually how!!?!??!`)
+            throw new Error("Traceback");
+        }
+
+
+        console.log(`Connecting ${this.id} to ${connectingPeerId} (assign|call)`);
+
+        console.log("telling", connectingPeerId, "to call to", this.id);
         connectingPeer.internalClient.send({
-            type: isPrimaryPeer ? "call" : "assign",
+            type: "call",
             data: {
-                id: isPrimaryPeer ? this.id : connectingPeerId
+                id: this.id
             }
         });
 
+        console.log("telling", this.id, "to accept from", connectingPeerId);
         this.internalClient.send({
-            type: isPrimaryPeer ? "assign" : "call",
+            type: "assign",
             data: {
-                id: isPrimaryPeer ? connectingPeerId : this.id
+                id: connectingPeerId
             }
         })
 
