@@ -202,7 +202,3 @@
 		>
 	</div>
 {/if}
-
-<p class="absolute bottom-2 left-1/2 -translate-x-1/2 font-retro text-white opacity-40 hover:opacity-65">
-	Made with ❤️ by <a class="underline" href="https://github.com/gusruben">Gus</a>, <a class="underline" href="https://github.com/TesDevelopment">Josh</a>, & <a class="underline" href="https://github.com/thedev132">Mohamad</a>
-</p>
