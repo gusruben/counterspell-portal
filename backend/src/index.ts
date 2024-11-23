@@ -5,7 +5,8 @@ import { type clientList, type clientPairing } from "../types";
 import { CounterspellClient } from "./modules/CounterspellClient";
 import api from "./modules/Api"
 
-import "dotenv/config";
+import { config } from "dotenv";
+config();
 
 const DEMO = process.env.DEMO === "true" ? true : false;
 
