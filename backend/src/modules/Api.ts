@@ -4,6 +4,7 @@ import type { CounterspellClient } from "./CounterspellClient";
 
 const DEMO = process.env.DEMO === "true" ? true : false;
 const ADMINKEY = process.env.ADMINKEY ?? "portalspell"
+console.log("Admin key:", ADMINKEY)
 
 function weightedAverage (content: number[], weights: number[]) : number {
     return content.reduce((previous, current, idx) => {
