@@ -5,6 +5,8 @@ import { type clientList, type clientPairing } from "../types";
 import { CounterspellClient } from "./modules/CounterspellClient";
 import api from "./modules/Api"
 
+import "dotenv/config";
+
 const DEMO = process.env.DEMO === "true" ? true : false;
 
 const PORT = process.env.PEER_PORT ? parseInt(process.env.PEER_PORT) : 8080;
@@ -28,6 +30,8 @@ peerServer.on('connection', (internalClient: IClient) => {
 
     const client = new CounterspellClient(internalClient);
 
+    console.log(`Connection from ${internalClient.getId()}`);
+
     clients[internalClient.getId()] = client;
 
     internalClient.send({
@@ -36,6 +40,15 @@ peerServer.on('connection', (internalClient: IClient) => {
             message: "Hello from HQ!"
         }
     })
+
+    if  (loner) {
+        loner.connect(client)
+        loner = undefined;
+    }
+
+    if (clients.length() % 2 != 0) {
+        loner = client;
+    }
 
     if (DEMO) {
         if (Object.keys(clients).length > 1) {
@@ -61,6 +74,13 @@ peerServer.on('disconnect', (internalClient: IClient) => {
 
     if (client && client.partner) {
         client.partner.disconnect(`${internalClient.getId()} disconnected prematurely`)
+
+        if  (loner) {
+            loner.connect(client.partner)
+            loner = undefined;
+        } else {
+            loner = client.partner;
+        }
     }
 
     delete clients[internalClient.getId()]

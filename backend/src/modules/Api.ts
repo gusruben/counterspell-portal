@@ -92,7 +92,7 @@ export default (clients: clientList) => {
 
     app.get(`/startTimer`, function(req, res) {
         if(!DEMO) {
-            if (req.headers["authorization"] != ADMINKEY) return res.status(403).json({
+            if (req.headers["Authorization"] != ADMINKEY) return res.status(403).json({
                 success: false,
                 message: "unauthorized request"
             });
