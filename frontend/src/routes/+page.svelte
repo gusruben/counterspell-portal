@@ -22,7 +22,7 @@
 	</div>
 </div>
 
-<p class="absolute bottom-4 left-1/2 -translate-x-1/2 font-retro text-white opacity-20 hover:opacity-50 text-sm transition-all">
+<p class="absolute bottom-5 left-1/2 -translate-x-1/2 font-retro text-white opacity-20 hover:opacity-50 text-sm transition-all">
 	Made with ❤️ by <a class="underline" href="https://github.com/gusruben">Gus</a>, <a class="underline" href="https://github.com/TesDevelopment">Josh</a>, & <a class="underline" href="https://github.com/thedev132">Mohamad</a>
 </p>
 
