@@ -5,7 +5,7 @@
     let element: HTMLDivElement;
 
     async function approve() {
-        await fetch('/review', {
+        await fetch('/verdict', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -18,7 +18,7 @@
     }
 
     async function reject() {
-        await fetch('/review', {
+        await fetch('/verdict', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
