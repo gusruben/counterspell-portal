@@ -30,10 +30,11 @@
 	}
 
 	function updateTimer() {
-		// if (Number.isNaN(timeLeft)) {
-		// 	timer = "00:00";
-		// 	return;
-		// }
+		if (isNaN(timeLeft)) {
+			timer = "00:00";
+			return;
+		}
+
 		let seconds = String(Math.floor(timeLeft / 1000) % 60);
 		if (Math.floor(timeLeft / 1000) % 60 < 10) {
 			seconds = "0" + seconds;
