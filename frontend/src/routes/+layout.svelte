@@ -6,7 +6,7 @@
 <Toaster toastOptions={{
 	unstyled: true,
 	classes: {
-		toast: "bg-[#0A081E] rounded-none border-counterspell-pink border-4 border-dashed text-white text-xl font-retro px-3"
+		toast: "bg-[#0A081E] rounded-none border-counterspell-pink border-4 border-dashed text-white font-retro px-5 py-4"
 	}
 }}/>
 

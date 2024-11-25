@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Peer, { type MediaConnection } from 'peerjs';
 	import { onMount } from 'svelte';
+	import { cities } from '$lib';
 
 	export let connectedLocation = 'Waiting to connect...';
 	export let connected = false;
@@ -18,18 +19,6 @@
 
 	export let timer = "00:00";
 	let timeLeft = import.meta.env.INTERVAL * 60 * 1000;
-	
-
-	const cities = [
-		'Visakhapatnam', 'Chandigarh', 'Bydgoszcz', 'Dubai', 'London', 'Tampa',
-		'Boston', 'Saint Augustine', 'Oshkosh', 'Toronto', 'Auckland', 'Silicon Valley',
-		'Seoul', 'Chennai', 'Manassas', 'Atlanta', 'San Diego', 'Dhaka', 'Delhi',
-		'Singapore', 'Vidisha', 'Alexandria', 'Lahore', 'Cambridge', 'Sydney', 'Nairobi',
-		'Rwamagana', 'Ottawa', 'Washington DC', 'Columbus', 'Casablanca', 'Nablus',
-		'Vancouver', 'New York', 'Phoenix', 'Winnipeg', 'Busan', 'Hong Kong', 'Bergen',
-		'Giza', 'Austin', 'Wolverhampton', 'Muzaffarpur', 'Patna', 'Moses Lake', 'Lima',
-		'Bengaluru', 'El Paso', 'Valenzuela'
-	];
 
 	async function refreshTimer() {
 		console.log("refreshing timer!")
