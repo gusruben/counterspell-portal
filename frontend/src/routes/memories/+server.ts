@@ -1,6 +1,5 @@
 import { json } from '@sveltejs/kit';
 import fs from 'fs';
-import { env } from '$env/dynamic/private';
 
 const memoriesPath = 'memories.json';
 const memoriesReviewPath = 'memories-to-review.json';
@@ -8,7 +7,7 @@ const memoriesReviewPath = 'memories-to-review.json';
 export async function GET({ cookies, url }) {
 
     if (url.searchParams.get('review') != null) {
-        if (cookies.get("auth") != env.VITE_ADMIN_TOKEN) { return json({ error: 'Unauthorized' }, { status: 401 }); }
+        if (cookies.get("auth") != import.meta.env.VITE_ADMIN_TOKEN) { return json({ error: 'Unauthorized' }, { status: 401 }); }
 
         let memoriesToReview: any[] = [];
         if (fs.existsSync(memoriesReviewPath)) {
@@ -33,7 +32,7 @@ export async function GET({ cookies, url }) {
 export async function POST({ request }) {
     const body = await request.json();
 
-    if (body.authKey !== env.VITE_AUTH_TOKEN) {
+    if (body.authKey !== import.meta.env.VITE_AUTH_TOKEN) {
         return json({ error: 'Unauthorized' }, { status: 401 });
     }
 

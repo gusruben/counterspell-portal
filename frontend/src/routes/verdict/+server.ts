@@ -1,4 +1,3 @@
-import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import fs from 'fs';
 
@@ -8,7 +7,7 @@ const memoriesReviewPath = 'memories-to-review.json';
 export async function POST({ request, cookies }) {
     const body = await request.json() as { authKey: string, type: string, URL: string };
 
-    if (cookies.get("auth") !== env.VITE_ADMIN_TOKEN) {
+    if (cookies.get("auth") !== import.meta.env.VITE_ADMIN_TOKEN) {
         return json({ error: 'Unauthorized' }, { status: 401 });
     }
 
