@@ -20,7 +20,7 @@
     });
 </script>
 
-<div class="fixed inset-0 flex flex-col items-center gap-10 px-14 py-10">
+<div class="fixed inset-0 flex flex-col items-center gap-10 px-14 py-10 overflow-y-scroll">
 	<div class="flex flex-row items-center w-full">
 		<img src="/favicon.png" alt="Counterspell Portal Logo" class="w-14 h-14" />
 		<h1 class=" font-retro text-3xl text-white">Review</h1>

@@ -157,6 +157,7 @@
 </script>
 
 <div class="absolute h-full w-full overflow-hidden">
+	<!-- svelte-ignore a11y-media-has-caption -->
 	<video autoplay bind:this={videoElement} class="absolute h-full w-full object-cover" />
 </div>
 
