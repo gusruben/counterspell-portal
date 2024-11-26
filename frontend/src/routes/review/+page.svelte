@@ -11,6 +11,10 @@
         imageModalOpen = true;
     }
 
+    function openImageModal(e: MouseEvent, index: number) {
+        if ((e.target as HTMLElement).tagName != "BUTTON") viewImage(index);
+    }
+
     onMount(async () => {
         memoriesToReview = await (await fetch("/memories?review")).json();
     });
@@ -23,7 +27,7 @@
 </div>
     <div class="flex flex-row flex-wrap gap-5 px-16 pt-5 w-full">
         {#each memoriesToReview as memory, index}
-            <ReviewGalleryCard URL={memory.URL} city={memory.city} on:click={e => {if (e.target == e.currentTarget) viewImage(index)}}/>
+            <ReviewGalleryCard URL={memory.URL} city={memory.city} on:click={e => openImageModal(e, index)}/>
         {/each}
     </div>
 </div>

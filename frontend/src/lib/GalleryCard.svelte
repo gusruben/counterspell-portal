@@ -10,6 +10,7 @@
         {#if URL.endsWith("mp4")}
             <!-- svelte-ignore a11y-media-has-caption -->
             <video src={URL} class="w-full h-40"></video>
+            <img src="/play.svg" alt="" class="h-10 w-10 p-2 absolute top-[6.5rem] right-2 bg-counterspell-100 bg-opacity-50">
         {:else}
             <img src={URL} alt="" class="w-full h-40">
         {/if}

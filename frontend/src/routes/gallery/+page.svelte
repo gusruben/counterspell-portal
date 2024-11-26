@@ -4,7 +4,7 @@
 	import { toast } from "svelte-sonner";
 	import { onMount } from "svelte";
 
-    let memoryLinkInput: HTMLInputElement;
+    let memoryLinkInput: HTMLTextAreaElement;
     let cityInput: HTMLSelectElement;
     let authKeyInput: HTMLInputElement;
     let memories: {URL: string, city: string}[] = [];
@@ -26,25 +26,28 @@
         if (missingInput) return;
 
         try {
-            const res = await fetch("/memories", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    URL: memoryLinkInput.value,
-                    city: cityInput.value,
-                    authKey: authKeyInput.value
-                })
-            });
-            
-            if (res.status == 403) {
-                throw new Error("Invalid auth key!");
-            }
-            if (res.status !== 200) {
-                throw new Error(res.statusText);
-            }
+            for (let URL of memoryLinkInput.value.split("\n")) {
+                if (!URL) continue;
+                    const res = await fetch("/memories", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            URL,
+                            city: cityInput.value,
+                            authKey: authKeyInput.value
+                        })
+                    });
 
+                    if (res.status == 403) {
+                        throw new Error("Invalid auth key!");
+                    }
+                    if (res.status !== 200) {
+                        throw new Error(res.statusText);
+                    }
+                }
+            
             toast("Memory submitted successfully!");
         } catch (error: any) {
             toast("Error submitting memory: " + error.message);
@@ -57,6 +60,10 @@
         imageModalOpen = true;
         submitModalOpen = false;
         currentMemoryIndex = index;
+    }
+
+    function openImageModal(e: MouseEvent, index: number) {
+        if ((e.target as HTMLElement).tagName != "BUTTON") viewImage(index);
     }
 
     onMount(async () => {
@@ -73,7 +80,7 @@
 	</div>
     <div class="flex flex-row flex-wrap gap-5 px-16 pt-5 w-full">
         {#each memories as memory, index}
-            <GalleryCard URL={memory.URL} city={memory.city} on:click={() => viewImage(index)}/>
+            <GalleryCard URL={memory.URL} city={memory.city} on:click={e => openImageModal(e, index)}/>
         {/each}
     </div>
 </div>
@@ -89,9 +96,9 @@
                 <div class="flex-grow" />
                 <button class="text-2xl font-retro text-white px-2" on:click={() => submitModalOpen = false}>×</button>
             </div>
-            <input bind:this={memoryLinkInput} type="text" placeholder="Image/Video Link" class="bg-counterspell-100 p-3 text-white font-retro text-lg
+            <textarea bind:this={memoryLinkInput} placeholder="Image/Video Links, One Per Line" class="bg-counterspell-100 p-3 text-white font-retro text-lg
                                 outline-none focus-visible:outline-2 focus-visible:outline-counterspell-pink
-                                data-[error]:outline-2 data-[error]:outline-counterspell-pink">
+                                data-[error]:outline-2 data-[error]:outline-counterspell-pink" />
             <p class="text-white font-retro text-sm -mt-2 opacity-25">Upload your files to #cdn and paste the link here!</p>
 
             <select
