@@ -23,7 +23,7 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ type: 'reject', url: URL }),
+            body: JSON.stringify({ type: 'reject', URL }),
             credentials: "include",
         });
         

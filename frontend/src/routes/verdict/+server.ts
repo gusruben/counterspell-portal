@@ -26,14 +26,17 @@ export async function POST({ request, cookies }) {
     }
 
     const memory = memoriesToReview.find(m => m.URL == body.URL);
-    console.log('Approving memory', body.URL, memory);
+    console.log(body.type, body.URL, memoriesToReview)
     if (memory) {
         if (body.type == 'approve') {
             memories.push(memory);
             memoriesToReview = memoriesToReview.filter(m => m.URL != body.URL);
             fs.writeFileSync(memoriesPath, JSON.stringify(memories));
         } else if (body.type == 'reject') {
+            console.log("rejecting", body.URL)
+            console.log("before", memoriesToReview);
             memoriesToReview = memoriesToReview.filter(m => m.URL != body.URL);
+            console.log("after ", memoriesToReview);
         }
     }
 
