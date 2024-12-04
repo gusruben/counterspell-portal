@@ -6,6 +6,8 @@
 	export let connectedLocation = 'Waiting to connect...';
 	export let connected = false;
 
+	const eventRunning = false;
+
 	let errorElement: HTMLParagraphElement;
 	let errorText: string = '';
 
@@ -151,8 +153,10 @@
 	}
 
 	onMount(() => {
-		refreshTimer();
-		setInterval(updateTimer, 1000);
+		if (eventRunning) {
+			refreshTimer();
+			setInterval(updateTimer, 1000);
+		}
 	})
 </script>
 
@@ -182,18 +186,30 @@
 				transition-transform ease-in-out data-[hidden]:scale-0"
 		bind:this={controlsElement}
 	>
-		<select
-			class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none"
-			bind:value={localId}
-			>
-			<option value="" disabled selected>Select your event city...</option>
-			{#each cities as city}
-				<option value={city}>{city}</option>
-			{/each}
-		</select>
-		<input type="password" class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none" placeholder="Auth Token" bind:this={passwordInput}>
-		<button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}
-			>ENTER THE PORTAL</button
-		>
+		{#if eventRunning}
+			<select
+				class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none"
+				bind:value={localId}
+				>
+				<option value="" disabled selected>Select your event city...</option>
+				{#each cities as city}
+					<option value={city}>{city}</option>
+				{/each}
+			</select>
+			<input type="password" class="border-4 border-dashed border-counterspell-pink bg-counterspell-100 p-3 font-retro text-lg text-white outline-none" placeholder="Auth Token" bind:this={passwordInput}>
+			<button class="bg-counterspell-pink p-4 font-retro text-white" on:click={initiateConnection}>ENTER THE PORTAL</button>
+		{:else}
+			<h1 class="text-2xl font-retro text-white text-center">Counterspell has ended, thank you to everyone who used Counterspell Portal!</h1>
+			<p class="text-md font-retro text-white/50 text-center w-max">It was awesome to see so many people from all around the world!</p>
+			<br>
+			<p class="text-lg font-retro text-white text-justify">
+				<a href="https://counterspell.hackclub.com" class="text-counterspell-pink underline">Counterspell</a>
+				was a 24-hour game jam running in 50+ cities all around the world over the same weekend. Counterspell
+				Portal connected random events together 1:1, randomizing every 15 minutes. Inspired by the
+				<a href="https://en.wikipedia.org/wiki/New_York%E2%80%93Dublin_Portal" class="text-counterspell-pink underline">NYC-Dublin Portal</a>,
+				audio was disabled, so participants had to find creative ways to communicate :)
+			</p>
+			<a href="/gallery" class="bg-counterspell-pink text-white text p-3 font-retro w-max mx-auto mt-5">View The Gallery</a>
+		{/if}
 	</div>
 {/if}

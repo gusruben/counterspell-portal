@@ -42,9 +42,7 @@
 			<h1 class=" font-retro text-3xl text-white">Counterspell Portal</h1>
 		</div>
 			<div class="flex-grow"></div>
-		<!-- <button class="bg-counterspell-pink text-white text p-3 font-retro">What Is This?</button> -->
-		<a href="/gallery" class="bg-counterspell-pink text-white text p-3 font-retro mr-3">View The Gallery</a>
-		<h1 class="font-retro text-3xl text-white opacity-75 w-28">{timer}</h1>
+	<h1 class="font-retro text-3xl text-white opacity-75 w-28">{timer}</h1>
 	</div>
 	<h1 class="font-retro text-3xl text-white mt-10 capitalize">{connectedLocation}</h1>
 	<div
