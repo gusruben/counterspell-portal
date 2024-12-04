@@ -5,11 +5,19 @@
 
 	let connectedLocation: string;
 	let timer: string;
+	let messagesInterval: NodeJS.Timeout;
 
 	let lastMessageCheck = Date.now();
 
 	async function checkMessages() {
-		const messages = await (await fetch("/messages")).json();
+		let messages;
+		try {
+			messages = await (await fetch("/messages")).json();
+		} catch (e) {
+			console.error("Error fetching messages:", e);
+			clearInterval(messagesInterval);
+			return;
+		}
 		for (let timestamp of Object.keys(messages)) {
 			console.log(timestamp, lastMessageCheck)
 			if (Number.parseInt(timestamp) > lastMessageCheck) {
@@ -24,7 +32,7 @@
 	}
 
 	onMount(() => {
-		setInterval(checkMessages, 5000);
+		messagesInterval = setInterval(checkMessages, 5000);
 	})
 </script>
 
