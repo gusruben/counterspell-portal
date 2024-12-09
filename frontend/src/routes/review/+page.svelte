@@ -3,12 +3,13 @@
 	import { onMount } from "svelte";
 
     let imageModalOpen = false;
-    let currentMemoryIndex = 0;
+    let currentMemoryIndex = -1;
     let memoriesToReview: {URL: string, city: string}[] = [];
 
     function viewImage(index: number) {
-        console.log("viewing", index)
+        console.log("viewing", index);
         imageModalOpen = true;
+        currentMemoryIndex = index;
     }
 
     function openImageModal(e: MouseEvent, index: number) {
