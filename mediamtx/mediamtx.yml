@@ -1,0 +1,23 @@
+playback: yes
+api: yes
+# pathDefaults:
+  # record: yes
+  # # Path of recording segments.
+  # # Extension is added automatically.
+  # # Available variables are %path (path name), %Y %m %d %H %M %S %f %s (time in strftime format)
+  # recordPath: ./recordings/%path/%Y-%m-%d_%H-%M-%S-%f
+  # recordDeleteAfter: 0s
+webrtcICEServers2:
+  - url: stun:stun.l.google.com:19302
+authInternalUsers:
+  # Username. 'any' means any user, including anonymous ones.
+- user: any
+  # Password. Not used in case of 'any' user.
+  pass:
+  # IPs or networks allowed to use this user. An empty list means any IP.
+  ips: []
+  permissions:
+    - action: api
+    - action: publish
+    - action: playback
+    - action: read

@@ -1,0 +1,13 @@
+services:
+  mediamtx:
+    restart: unless-stopped
+    network_mode: "host"
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    # volumes:
+      # - mediamtx_recordings:/recordings
+    # ports:
+    #   - "8889:8889"
+    #   - "1935:1935"
+    #   - "9997:9997"
