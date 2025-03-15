@@ -186,8 +186,8 @@
 </div>
 
 {#if connectedStreamID}
-	<!-- <iframe src={`/read-embed?streamID=${connectedStreamID}`} frameborder="0" class="absolute w-full h-full" title="Portal"></iframe> -->
-	<iframe src={`//${import.meta.env.VITE_HLS_HOST}:${import.meta.env.VITE_HLS_PORT}/${connectedStreamID}`} frameborder="0" class="absolute w-full h-full inset-0" title="Portal"></iframe>
+	<iframe src={`/read-embed?streamID=${connectedStreamID}`} frameborder="0" class="absolute w-full h-full inset-0" title="Portal"></iframe>
+	<!-- <iframe src={`//${import.meta.env.VITE_HLS_HOST}:${import.meta.env.VITE_HLS_PORT}/${connectedStreamID}`} frameborder="0" class="absolute w-full h-full inset-0" title="Portal"></iframe> -->
 {/if}
 
 
