@@ -702,9 +702,9 @@
 	});
 </script>
 
-<div class="absolute left-0 top-0 h-full w-full z-10 font-retro">
+<div class="absolute left-0 top-0 h-full w-full z-10 font-moonblossom">
 	<!-- this can be commented out with no issues -->
-    <video id="video" muted autoplay playsinline class="absolute w-[20vw] left-0 bottom-0"></video>
+    <video id="video" muted autoplay playsinline class="absolute w-[30vw] left-0 bottom-0 bg-[url(/blue-scrap.png)] bg-center bg-no-repeat bg-contain p-[5vw]"></video>
 
 	<div id="controls">
 		<div id="items" class="w-1/2">
@@ -766,7 +766,7 @@
 		</div>
 
 		<div id="submit-line">
-			<button class="!bg-counterspell-pink !p-4 !font-retro !text-white" id="publish-button">ENTER THE PORTAL</button>
+			<button class="!bg-counterspell-pink !p-4 !font-moonblossom !text-white" id="publish-button">ENTER THE PORTAL</button>
 		</div>
 	</div>
 

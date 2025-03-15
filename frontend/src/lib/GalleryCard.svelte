@@ -14,6 +14,6 @@
         {:else}
             <img src={URL} alt="" class="w-full h-40">
         {/if}
-        <p class="text-white font-retro text-lg p-3 w-full">{city}</p>
+        <p class="text-white font-moonblossom text-lg p-3 w-full">{city}</p>
     </div>
 </div>

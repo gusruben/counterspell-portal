@@ -42,8 +42,8 @@
         {:else}
             <img src={URL} alt="" class="w-full h-40">
         {/if}
-        <p class="text-white font-retro text-lg p-3 w-full">{city}</p>
-        <button class="text-white font-retro text-lg p-3 w-full hover:brightness-90 bg-counterspell-500 mb-1" on:click={approve}>Approve</button>
-        <button class="text-white font-retro text-lg p-3 w-full hover:brightness-90 bg-counterspell-500" on:click={reject}>Reject</button>
+        <p class="text-white font-moonblossom text-lg p-3 w-full">{city}</p>
+        <button class="text-white font-moonblossom text-lg p-3 w-full hover:brightness-90 bg-counterspell-500 mb-1" on:click={approve}>Approve</button>
+        <button class="text-white font-moonblossom text-lg p-3 w-full hover:brightness-90 bg-counterspell-500" on:click={reject}>Reject</button>
     </div>
 </div>

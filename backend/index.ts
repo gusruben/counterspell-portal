@@ -3,6 +3,7 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
+import RoundRobin from "./modules/RoundRobin";
 
 const port = Number(process.env.BACKEND_PORT) || 3000;
 
@@ -19,8 +20,8 @@ const io = new Server(httpServer, {
 
 
 // important variables
-let lastSwapTime: number = Date.now();
-
+let lastSwapTime: number;
+let reMatchStarted = false;
 
 // express stuff
 app.get("/", (_req, res) => {
@@ -30,7 +31,7 @@ app.get("/get-swap-interval", (_req, res) => {
 	res.send(process.env.SWAP_INTERVAL);
 });
 app.get("/last-swap", (_req, res) => {
-	res.send(lastSwapTime.toString());
+	res.send(lastSwapTime ? lastSwapTime.toString() : "..."); // this will be a NaN on the client, so it'll display ??:??
 })
 app.post("/check-auth", (req, res) => {
 	if (req.body.auth == process.env.AUTH_KEY) {
@@ -48,11 +49,42 @@ interface PortalConnection {
 	city: string;
 	id: string;
 	streamID: string;
+	connectedID: string;
 	ready: boolean;
 }
 
 // socket.io stuff
 const clients: PortalConnection[] = [];
+
+function shuffleArray(array: any[]) {
+    for (let i = array.length - 1; i >= 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function onReMatch() {
+	console.log("starting re-match");
+	lastSwapTime = Date.now();
+	shuffleArray(clients);
+	let readyClients = clients.filter(a => a.ready);
+	if (readyClients.length % 2 != 0) {
+		const lastClient = readyClients.at(-1);
+		if (lastClient) {
+			console.log(`Making ${lastClient.id} (${lastClient.city}) end call`);
+			readyClients.at(-1)?.socket.emit("end-call-odd");
+		}
+	}
+	for (let i=0; i<Math.floor(readyClients.length/2); i+=2) {
+		let caller = readyClients[i];
+		let receiver = readyClients[i+1];
+		console.log(`Making ${caller.id} (${caller.city}) call ${receiver.id} (${receiver.city})`);
+		caller.socket.emit("call", { stream: receiver.streamID, city: receiver.city });
+		receiver.socket.emit("call", { stream: caller.streamID, city: caller.city });
+		caller.connectedID = receiver.id
+		receiver.connectedID = caller.id
+	}
+}
 
 io.on("connection", async socket => {
 	if (socket.handshake.auth.authToken !== process.env.AUTH_KEY) {
@@ -79,6 +111,7 @@ io.on("connection", async socket => {
 	console.log(`Connection:    ${portalClient.id} [ stream: ${portalClient.streamID} ]  ( ${portalClient.city} )`);
 	clients.push(portalClient);
 
+
 	// send the client its streamID
 	socket.emit("setup", portalClient.streamID);
 
@@ -86,16 +119,22 @@ io.on("connection", async socket => {
 	socket.on("disconnect", () => {
 		console.log(`Disconnection: ${portalClient.id} [ stream: ${portalClient.streamID} ]  ( ${portalClient.city} )`);
 		clients.splice(clients.indexOf(portalClient), 1);
+		let caller = clients.find((c) => c.id == portalClient.connectedID);
+		if (caller) {
+			caller.socket.emit("end-call-disconnect")
+			caller.connectedID = undefined
+		}
 	});
 	socket.on("ready", () => {
 		console.log(`Ready:         ${portalClient.id} [ stream: ${portalClient.streamID} ]  ( ${portalClient.city} )`);
 		portalClient.ready = true;
 
-		if (clients.filter(c => c.ready).length == 2) {
-			const [caller, receiver] = clients;
-			console.log(`Making ${caller.id} call ${receiver.id}`);
-			caller.socket.emit("call", { stream: receiver.streamID, city: receiver.city });
-			receiver.socket.emit("call", { stream: caller.streamID, city: caller.city });
+		if (!reMatchStarted && clients.filter(c => c.ready).length >= 2) {
+			reMatchStarted = true; // Call this only once when the first 2 people connect
+			onReMatch();
+			setInterval(() => {
+				onReMatch();
+			}, parseFloat(process.env.SWAP_INTERVAL || "1") * 60 * 1000);
 		}
 	});
 

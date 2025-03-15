@@ -5,7 +5,8 @@ export default {
 
 	theme: {
 		fontFamily: {
-			retro: ['Retro Gaming'],
+			moonblossom: ['moonblossom', 'sans-serif'],
+			stanyan: ['p22-stanyan', 'sans-serif'],
 		},
 		extend: {
 			colors: {
@@ -16,6 +17,10 @@ export default {
 					200: '#1B192B',
 					500: '#202f53',
 				},
+				scrapyard: {
+					text: "#1f2d3d",
+					green: "#337d78",
+				}
 			},
 		},
 	},
