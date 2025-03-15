@@ -8,13 +8,19 @@
     let publishURL;
 
 	onMount(() => {
-        if (!streamID) {
-            window.parent.postMessage({type: "error", data: "No streamID provided"}, "*");
-            return;
+        streamID = (new URLSearchParams(window.location.search)).get("streamID");
+
+		if (!streamID) {
+			// only error if it's in an iframe-- otherwise it's for testing
+			if (window.self !== window.top) {
+				window.parent.postMessage({type: "error", data: "No streamID provided"}, "*");
+				return;
+			} else {
+				streamID = "test";
+			}
         }
 
-        streamID = (new URLSearchParams(window.location.search)).get("streamID");
-        publishURL = `http://${import.meta.env.VITE_MEDIA_SERVER}:${import.meta.env.VITE_MEDIA_PORT}/${streamID}/whip`;
+        publishURL = `${window.location.protocol}//${import.meta.env.VITE_WEBRTC_HOST}:${import.meta.env.VITE_WEBRTC_PORT}/${streamID}/whip`;
 
 
 		// MediaMTXWebRTCPublisher
@@ -470,6 +476,7 @@
 				},
 				onConnected: evt => {
 					setMessage('');
+					window.parent.postMessage({ type: 'ready' }, '*');
 				},
 			});
 		};
@@ -695,9 +702,9 @@
 	});
 </script>
 
-<div class="absolute left-0 top-0 h-full w-full z-10 bg-counterspell-100 font-retro">
+<div class="absolute left-0 top-0 h-full w-full z-10 font-retro">
 	<!-- this can be commented out with no issues -->
-    <video id="video" muted autoplay playsinline class="absolute w-[20vw] right-0 bottom-0"></video>
+    <video id="video" muted autoplay playsinline class="absolute w-[20vw] left-0 bottom-0"></video>
 
 	<div id="controls">
 		<div id="items" class="w-1/2">

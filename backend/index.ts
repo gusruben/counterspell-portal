@@ -4,7 +4,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 
-const port = Number(process.env.API_PORT) || 3000;
+const port = Number(process.env.BACKEND_PORT) || 3000;
 
 const app = express();
 app.use(express.json());
@@ -43,18 +43,18 @@ app.get("/get-event-count", (_req, res) => {
 	res.send(clients.length.toString());
 });
 
-
 interface PortalConnection {
 	socket: Socket;
 	city: string;
 	id: string;
 	streamID: string;
+	ready: boolean;
 }
 
 // socket.io stuff
 const clients: PortalConnection[] = [];
 
-io.on("connection", socket => {
+io.on("connection", async socket => {
 	if (socket.handshake.auth.authToken !== process.env.AUTH_KEY) {
 		socket.disconnect();
 		return;
@@ -65,35 +65,40 @@ io.on("connection", socket => {
 		city: socket.handshake.auth.city,
 		id: socket.id,
 		streamID: Math.random().toString(36).substring(2, 15),
+		ready: false,
 	};
 
 	// prevent multiple connections from the same city
 	if (clients.find(c => c.city == portalClient.city)) {
 		console.log("Duplicate connection from", portalClient.city);
-		socket.emit("disconnect", "Another connection from the same city is already active.");
+		socket.emit("disconnect_error", "Another connection from the same city is already active.");
 		socket.disconnect(true);
 		return;
 	}
 
-	console.log(`Connection:    ${portalClient.id} ( ${portalClient.city} )`);
+	console.log(`Connection:    ${portalClient.id} [ stream: ${portalClient.streamID} ]  ( ${portalClient.city} )`);
 	clients.push(portalClient);
 
 	// send the client its streamID
 	socket.emit("setup", portalClient.streamID);
 
-
-	if (clients.length == 2) {
-		const [caller, receiver] = clients;
-		console.log(`Making ${caller.id} call ${receiver.id}`);
-		caller.socket.emit("call", { target: receiver.id, targetCity: receiver.city });
-		receiver.socket.emit("assign", { target: caller.id, targetCity: caller.city });
-	}
-
 	// handlers
 	socket.on("disconnect", () => {
-		console.log(`Disconnection: ${portalClient.id} ( ${portalClient.city} )`);
+		console.log(`Disconnection: ${portalClient.id} [ stream: ${portalClient.streamID} ]  ( ${portalClient.city} )`);
 		clients.splice(clients.indexOf(portalClient), 1);
 	});
+	socket.on("ready", () => {
+		console.log(`Ready:         ${portalClient.id} [ stream: ${portalClient.streamID} ]  ( ${portalClient.city} )`);
+		portalClient.ready = true;
+
+		if (clients.filter(c => c.ready).length == 2) {
+			const [caller, receiver] = clients;
+			console.log(`Making ${caller.id} call ${receiver.id}`);
+			caller.socket.emit("call", { stream: receiver.streamID, city: receiver.city });
+			receiver.socket.emit("call", { stream: caller.streamID, city: caller.city });
+		}
+	});
+
 });
 
 // Start the server

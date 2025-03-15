@@ -4,7 +4,7 @@
 	import { io, Socket } from "socket.io-client";
 	import { toast } from 'svelte-sonner';
 
-	// export let connectedLocation = 'Waiting to connect...';
+	export let connectedLocation = 'Waiting to connect...';
 	// export let connected = false;
 	const eventRunning = true; // if this is true, portal is disabled and a message is shown instead
 	
@@ -19,11 +19,12 @@
 	// state vars
 	let socket: Socket;
 	let firstConnect = false; // is this current connection the first one? (before any calls)
-	let currentCall;
-	let streamID;
+	let streamID: string | undefined;
+	let clientStreamReady = false;
+	let connectedStreamID: string | undefined;
 
 	// server/info vars
-	const serverURL = `//${import.meta.env.VITE_API_SERVER}:${import.meta.env.VITE_API_PORT}`;
+	const serverURL = `//${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}`;
 	let swapInterval: number;
 	export let timer = "...";
 	let timeLeft: number = NaN;
@@ -102,6 +103,8 @@
 	}
 
 	onMount(async () => {
+		console.log("Server URL:", serverURL);
+		
 		if (eventRunning) {
 			const res = await fetch(`${serverURL}/get-swap-interval`);
 			// swapInterval = ;
@@ -122,8 +125,20 @@
 			auth: { city: localId, authToken: passwordInput.value }
 		});
 
-		socket.on("setup", streamID => {
-			streamID = streamID;
+		socket.on("setup", async incomingStreamID => {
+			streamID = incomingStreamID;
+			await fetch(`${window.location.protocol}//${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/v3/config/paths/add/${streamID}`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ name: streamID }),
+			});
+		})
+		socket.on("call", data => {
+			console.log("GOT A CALL WEE WOO WEE WOO")
+			const { stream, city } = data;
+			console.log("Assigned to city:", city);
+			connectedStreamID = stream;
+			connectedLocation = city;
 		})
 		
 		// simple connection events
@@ -137,17 +152,28 @@
 		socket.on("reconnect", attempts => {
 			toast(`Reconnected after ${attempts} attempts!`)
 		})
-		socket.on("disconnect", reason => {
+		socket.on("disconnect_error", reason => {
 			toastLog("Disconnected from server: " + reason);
+			socket.disconnect();
 		});
 	}
 
 	// messaging with stream iframe
 	function onMessage(message: MessageEvent) {
+		console.log(message, message.data)
 		const { type, data } = message.data;
 		
-		if (type == "error") {
-			error(data);
+		switch (type) {
+			case "error":
+				error(data);
+				break;
+			case "ready":
+				clientStreamReady = true;
+				console.log("socket:", socket);
+				socket.emit("ready");
+				break;
+			default:
+				console.warn("Unknown message type:", type, message.data);
 		}
 	}
 	onMount(() => window.addEventListener("message", onMessage));
@@ -159,15 +185,18 @@
 	<button class="bg-counterspell-pink py-4 px-12 font-retro text-white" on:click={() => errorElement.removeAttribute("data-error")}>OK</button>
 </div>
 
-{#if streamID}
-	<div class="absolute h-full w-full overflow-hidden">
-		<!-- svelte-ignore a11y-media-has-caption -->
-		<!-- <video autoplay bind:this={videoElement} class="absolute h-full w-full object-cover" /> -->
-		<!-- <iframe src={`//${import.meta.env.VITE_MEDIA_SERVER}:${import.meta.env.VITE_MEDIA_PORT}/${localId}/publish?audio-voice=false`} frameborder="0" class="absolute w-full h-full" title="Portal"></iframe> -->
-		<iframe src={`/publish-embed?streamID=${streamID}`} frameborder="0" class="absolute w-full h-full" title="Portal"></iframe>
-	</div>
+{#if connectedStreamID}
+	<!-- <iframe src={`/read-embed?streamID=${connectedStreamID}`} frameborder="0" class="absolute w-full h-full" title="Portal"></iframe> -->
+	<iframe src={`//${import.meta.env.VITE_HLS_HOST}:${import.meta.env.VITE_HLS_PORT}/${connectedStreamID}`} frameborder="0" class="absolute w-full h-full inset-0" title="Portal"></iframe>
 {/if}
 
+
+{#if streamID}
+	<!-- svelte-ignore a11y-media-has-caption -->
+	<!-- <video autoplay bind:this={videoElement} class="absolute h-full w-full object-cover" /> -->
+	<!-- <iframe src={`//${import.meta.env.VITE_WEBRTC_HOST}:${import.meta.env.VITE_WEBRTC_PORT}/${localId}/publish?audio-voice=false`} frameborder="0" class="absolute w-full h-full" title="Portal"></iframe> -->
+	<iframe src={`/publish-embed?streamID=${streamID}`} frameborder="0" class="absolute w-full h-full inset-0" title="Portal"></iframe>
+{/if}
 
 <!-- 
 {#if socket && !currentCall}
